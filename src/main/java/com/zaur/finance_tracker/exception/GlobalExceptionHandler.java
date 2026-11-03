@@ -19,6 +19,9 @@ public class GlobalExceptionHandler{
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
+
+        e.printStackTrace();
+
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .message("Internal Server Error")
                 .status(500)
