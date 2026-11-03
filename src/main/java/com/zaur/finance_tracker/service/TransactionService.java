@@ -1,10 +1,13 @@
 package com.zaur.finance_tracker.service;
 
+import com.zaur.finance_tracker.dto.BalanceResponse;
 import com.zaur.finance_tracker.dto.TransactionRequest;
 import com.zaur.finance_tracker.dto.TransactionResponse;
 import com.zaur.finance_tracker.exception.TransactionNotFoundException;
 import com.zaur.finance_tracker.mapper.TransactionMapper;
+import com.zaur.finance_tracker.model.Currency;
 import com.zaur.finance_tracker.model.Transaction;
+import com.zaur.finance_tracker.model.TransactionType;
 import com.zaur.finance_tracker.repository.TransactionRepository;
 import com.zaur.finance_tracker.security.AuthenticatedUser;
 import lombok.AccessLevel;
@@ -14,9 +17,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -67,5 +73,35 @@ public class TransactionService {
         }
 
         return transactionResponses;
+    }
+
+    private BigDecimal sumByType(List<Object[]> rows, TransactionType type) {
+        return rows.stream()
+                .filter(row -> row[1] == type)
+                .map(row -> (BigDecimal) row[2])
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public List<BalanceResponse> getSummary() {
+        UUID userId = getAuthenticatedUser().getId();
+
+        List<Object[]> rows = transactionRepository.getTransactionSummaryByUserId(userId);
+
+        Map<Currency, List<Object[]>> byCurrency = rows.stream()
+                .collect(Collectors.groupingBy(row -> (Currency) row[0]));
+
+        return byCurrency.entrySet().stream()
+                .map(entry -> {
+                    BigDecimal income = sumByType(entry.getValue(), TransactionType.INCOME);
+                    BigDecimal expense = sumByType(entry.getValue(), TransactionType.EXPENSE);
+
+                    return BalanceResponse.builder()
+                            .currency(entry.getKey())
+                            .income(income)
+                            .expense(expense)
+                            .balance(income.subtract(expense))
+                            .build();
+                })
+                .toList();
     }
 }
