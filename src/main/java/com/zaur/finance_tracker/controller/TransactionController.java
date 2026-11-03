@@ -1,0 +1,44 @@
+package com.zaur.finance_tracker.controller;
+
+import com.zaur.finance_tracker.dto.TransactionRequest;
+import com.zaur.finance_tracker.dto.TransactionResponse;
+import com.zaur.finance_tracker.exception.TransactionNotFoundException;
+import com.zaur.finance_tracker.service.TransactionService;
+import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequestMapping("/transaction")
+public class TransactionController {
+
+    TransactionService transactionService;
+
+    @PostMapping("/add")
+    public TransactionResponse  addTransaction(@Valid @RequestBody TransactionRequest transactionRequest) {
+        return transactionService.addTransaction(transactionRequest);
+    }
+
+    @DeleteMapping("/{id}")
+    public void  deleteTransaction(@PathVariable UUID id) throws TransactionNotFoundException {
+        transactionService.deleteTransactionById(id);
+    }
+
+    @GetMapping("/{id}")
+    public TransactionResponse findTransactionById(@PathVariable UUID id) {
+        return transactionService.getTransaction(id);
+    }
+
+    @GetMapping("/my")
+    public List<TransactionResponse> findTransactionByUser() {
+        return transactionService.getMyTransactions();
+    }
+
+}
