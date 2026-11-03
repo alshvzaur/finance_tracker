@@ -1,5 +1,6 @@
 package com.zaur.finance_tracker.controller;
 
+import com.zaur.finance_tracker.dto.BalanceResponse;
 import com.zaur.finance_tracker.dto.TransactionRequest;
 import com.zaur.finance_tracker.dto.TransactionResponse;
 import com.zaur.finance_tracker.exception.TransactionNotFoundException;
@@ -41,4 +42,8 @@ public class TransactionController {
         return transactionService.getMyTransactions();
     }
 
+    @GetMapping("/summary")
+    public List<BalanceResponse> getSummary() {
+        return transactionService.getSummary();
+    }
 }

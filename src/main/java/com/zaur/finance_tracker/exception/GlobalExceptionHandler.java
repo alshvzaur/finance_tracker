@@ -3,6 +3,7 @@ package com.zaur.finance_tracker.exception;
 import com.zaur.finance_tracker.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -83,6 +84,17 @@ public class GlobalExceptionHandler{
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .message(message)
+                .status(400)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .message("Invalid request body!")
                 .status(400)
                 .timestamp(LocalDateTime.now())
                 .build();
