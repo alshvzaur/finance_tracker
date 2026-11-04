@@ -5,6 +5,7 @@ import com.zaur.finance_tracker.dto.TransactionRequest;
 import com.zaur.finance_tracker.dto.TransactionResponse;
 import com.zaur.finance_tracker.exception.TransactionNotFoundException;
 import com.zaur.finance_tracker.service.TransactionService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
